@@ -15,18 +15,10 @@ import android.widget.RelativeLayout
 
 
 
-class StartPagerAdapter : PagerAdapter {
-
-    var context : Context
-    var images : IntArray
+class StartPagerAdapter(var context: Context, private var images: IntArray) : PagerAdapter() {
     lateinit var inflater : LayoutInflater
 
-    constructor(context: Context, images: IntArray):super() {
-        this.context = context
-        this.images = images
-    }
-
-    override fun isViewFromObject(view: View?, `object`: Any?): Boolean {
+    override fun isViewFromObject(view: View, `object`: Any): Boolean {
         return view == `object` as LinearLayout
     }
 
@@ -34,19 +26,18 @@ class StartPagerAdapter : PagerAdapter {
         return images.size
     }
 
-    override fun instantiateItem(container: ViewGroup?, position: Int): Any {
+    override fun instantiateItem(container: ViewGroup, position: Int): Any {
         var image : ImageView
         inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         var view = inflater.inflate(R.layout.item_start_pager, container, false)
         image = view.findViewById(R.id.startPagerImageView)
         image.setBackgroundResource(images[position])
-        container?.addView(view)
+        container.addView(view)
         return view
     }
 
-    override fun destroyItem(container: ViewGroup?, position: Int, `object`: Any?) {
-        container?.removeView(`object` as LinearLayout)
+    override fun destroyItem(container: ViewGroup, position: Int, `object`: Any) {
+        container.removeView(`object` as LinearLayout)
     }
-
 
 }

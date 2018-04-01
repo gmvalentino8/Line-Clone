@@ -3,7 +3,6 @@ package com.valentino.line.activity
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import com.valentino.line.R
-import com.valentino.line.KeyboardManager
 import kotlinx.android.synthetic.main.activity_signup.*
 
 
@@ -13,7 +12,5 @@ class SignupActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_signup)
     }
-
-
 
 }

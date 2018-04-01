@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "668730867278",
+    "firebase_url": "https://lineclone8.firebaseio.com",
+    "project_id": "lineclone8",
+    "storage_bucket": "lineclone8.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:668730867278:android:2a6f73b08e8d5e69",
+        "android_client_info": {
+          "package_name": "com.valentino.line"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "668730867278-m7e4sh608krn5qvf07pun95jj7iq49js.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.valentino.line",
+            "certificate_hash": "45db8d639f675f4421210db564e21e1030db4bf6"
+          }
+        },
+        {
+          "client_id": "668730867278-mjgras50b5n6sn81dmdsbm9qi8hs66co.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBXd_VWZpq41pHb_7zO3QHYBezCdp1PBUk"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "668730867278-mjgras50b5n6sn81dmdsbm9qi8hs66co.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

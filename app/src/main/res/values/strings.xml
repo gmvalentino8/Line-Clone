@@ -1,10 +1,15 @@
 <resources>
     <string name="app_name">Line</string>
 
+    <string name="facebook_app_id">988408754641734</string>
+    <string name="fb_login_protocol_scheme">fb988408754641734</string>
+
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="login">Log in</string>
     <string name="signup">Sign up</string>
+
     <string name="facebookLogin">Log in with Facebook</string>
     <string name="signupTerms">You must verify your phone number or Facebook account to create a LINE account. By tapping Next, you agree to LINE\'s Terms and Conditions of Use and Private Policy</string>
+    <string name="displayNameInfo">Enter a display name and upload a profile picture that will help your friends find you. Your display name and picture are visible to other LINE users</string>
 </resources>
