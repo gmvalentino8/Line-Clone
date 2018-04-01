@@ -6,20 +6,21 @@ import android.view.*
 
 import com.valentino.line.R
 
-class FriendsFragment : Fragment() {
+class MoreFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
+
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_friends, container, false)
+        return inflater.inflate(R.layout.fragment_more, container, false)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
-        inflater?.inflate(R.menu.menu_friends_options, menu)
+        inflater?.inflate(R.menu.menu_more_options, menu)
         super.onCreateOptionsMenu(menu, inflater)
     }
 

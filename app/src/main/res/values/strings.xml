@@ -12,4 +12,9 @@
     <string name="facebookLogin">Log in with Facebook</string>
     <string name="signupTerms">You must verify your phone number or Facebook account to create a LINE account. By tapping Next, you agree to LINE\'s Terms and Conditions of Use and Private Policy</string>
     <string name="displayNameInfo">Enter a display name and upload a profile picture that will help your friends find you. Your display name and picture are visible to other LINE users</string>
+
+    <string-array name="imageOptions">
+        <item>Camera</item>
+        <item>Select photo</item>
+    </string-array>
 </resources>

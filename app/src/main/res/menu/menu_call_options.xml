@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item android:id="@+id/contacts"
+        android:title="Contacts"
+        android:icon="@drawable/ic_account_box_icon"
+        app:showAsAction="ifRoom"/>
+    <item android:id="@+id/dialpad"
+        android:title="Dialpad"
+        android:icon="@drawable/ic_dialpad_icon"
+        app:showAsAction="ifRoom"/>
+    <item android:id="@+id/more"
+        android:title="More"
+        android:icon="@drawable/ic_options_icon"
+        app:showAsAction="ifRoom"/>
+
+</menu>

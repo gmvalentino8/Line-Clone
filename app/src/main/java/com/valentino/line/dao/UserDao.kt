@@ -16,8 +16,16 @@ import java.util.HashMap
 import java.util.HashSet
 import android.widget.Toast
 import android.R.attr.author
+import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.drawable.BitmapDrawable
+import android.net.Uri
 import android.util.Log
+import android.widget.ImageView
 import android.widget.TextView
+import com.bumptech.glide.Glide
+import com.google.firebase.storage.FirebaseStorage
+import java.io.ByteArrayOutputStream
 
 
 /**
@@ -26,9 +34,10 @@ import android.widget.TextView
 
 object UserDAO {
     private val mDatabase = FirebaseDatabase.getInstance().reference
+    private val mStorage = FirebaseStorage.getInstance().reference
     private val uid = FirebaseAuth.getInstance().currentUser?.uid
 
-    fun getUser(completion : (User?)->Unit) {
+    fun getUser(completion: (User?)->Unit) {
         mDatabase.child("users").child(uid).addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(p0: DataSnapshot?) {
                 var user = p0?.getValue(User::class.java)
@@ -38,7 +47,36 @@ object UserDAO {
         })
     }
 
-    fun getUserDataFromFacebook(completion: (String, String, String) -> Unit) {
+    fun postUser(user: User) {
+        mDatabase.child("users").child(uid).setValue(user)
+    }
+
+    fun saveProfileImage(imageView: ImageView) {
+        val bitmap = (imageView.getDrawable() as BitmapDrawable).getBitmap()
+        val stream = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.PNG, 90, stream)
+        val image = stream.toByteArray()
+        val imageName = uid + ".png"
+        mStorage.child("profileImages").child(imageName).putBytes(image)
+    }
+
+    fun getProfileImage(context: Context, userID: String, imageView: ImageView) {
+        val imageName = userID + ".png"
+        mStorage.child("profileImages").child(imageName).downloadUrl.addOnSuccessListener {
+            Glide.with(context).load(it).into(imageView)
+        }
+
+    }
+
+    fun saveProfileImage(imageURL: String) {
+
+    }
+
+    fun saveProfileImage(imageURI: Uri) {
+
+    }
+
+    fun getUserDataFromFacebook(completion: (String, String, String, String) -> Unit) {
         val request = GraphRequest.newMeRequest(
                 AccessToken.getCurrentAccessToken()
         ) { `object`, response ->
@@ -46,14 +84,15 @@ object UserDAO {
                 val firstName = `object`.getString("first_name")
                 val lastName = `object`.getString("last_name")
                 val picture = `object`.getJSONObject("picture").getJSONObject("data").getString("url")
+                val email = `object`.getString("email")
                 Log.d("Facebook API", firstName + " " + lastName + " " + picture)
-                completion(firstName, lastName, picture)
+                completion(firstName, lastName, email, picture)
             } catch (e: JSONException) {
                 e.printStackTrace()
             }
         }
         val parameters = Bundle()
-        parameters.putString("fields", "first_name, last_name, picture.type(large).width(960).height(960)")
+        parameters.putString("fields", "first_name, last_name, email, picture.type(large).width(960).height(960)")
         request.parameters = parameters
         request.executeAsync()
     }
@@ -81,10 +120,6 @@ object UserDAO {
         parameters.putString("fields", "id, first_name, last_name, email, picture.type(large).width(960).height(960)")
         request.parameters = parameters
         request.executeAsync()
-    }
-
-    fun postUser(user : User) {
-        mDatabase.child("users").child(uid).setValue(user)
     }
 
     fun getFriends(listener:UserListener) {
