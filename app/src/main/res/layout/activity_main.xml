@@ -10,7 +10,8 @@
         android:layout_width="match_parent"
         android:layout_height="60dp"
         android:id="@+id/mainToolbar"
-        android:background="@color/dark_gray"
+        android:background="@color/colorPrimaryDark"
+        app:titleTextColor="@color/colorAccent"
         android:layout_alignParentTop="true">
     </android.support.v7.widget.Toolbar>
 
@@ -31,7 +32,7 @@ A
                 android:layout_height="wrap_content"
                 android:layout_weight="0"
                 android:orientation="horizontal"
-                android:background="@color/dark_gray"
+                android:background="@color/colorPrimaryDark"
                 android:foregroundTint="@color/white">
             </TabWidget>
 

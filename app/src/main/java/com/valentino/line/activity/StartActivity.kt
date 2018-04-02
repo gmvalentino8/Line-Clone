@@ -8,16 +8,13 @@ import android.util.Log
 import android.view.View
 import android.widget.ImageView
 import com.valentino.line.R
-import com.valentino.line.StartPagerAdapter
+import com.valentino.line.adapter.StartPagerAdapter
 import kotlinx.android.synthetic.main.activity_start.*
 import android.widget.LinearLayout
 import com.facebook.*
 import com.facebook.appevents.AppEventsLogger
 import com.facebook.login.LoginManager
 import com.facebook.login.LoginResult
-import com.google.android.gms.tasks.OnCompleteListener
-import com.google.android.gms.tasks.Task
-import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FacebookAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.valentino.line.dao.UserDAO
@@ -126,7 +123,7 @@ class StartActivity : AppCompatActivity(), View.OnClickListener, ViewPager.OnPag
                 .addOnCompleteListener(this) { task ->
                     if (task.isSuccessful) {
                         Log.d("Login", "signInWithCredential:success")
-                        UserDAO.getUser {
+                        UserDAO.getUser(FirebaseAuth.getInstance().currentUser?.uid!!) {
                             if (it != null) {
                                 Log.d(TAG, it.name)
                                 goToMainActivity()

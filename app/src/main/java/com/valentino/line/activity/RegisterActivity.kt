@@ -15,8 +15,7 @@ import kotlinx.android.synthetic.main.activity_register.*
 
 class RegisterActivity : AppCompatActivity(), View.OnClickListener {
 
-    var imageURL: String = ""
-    var imageURI: Uri? = null
+    var email: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -24,8 +23,8 @@ class RegisterActivity : AppCompatActivity(), View.OnClickListener {
         getUserDataFromFacebook( {firstName: String, lastName: String,
                                           email: String, picture: String ->
             displayNameEditText.setText(firstName + " " + lastName)
+            this.email = email
             Glide.with(this).load(picture).into(profileImageView)
-            imageURL = picture
         })
         profileImageView.setOnClickListener(this)
         registerButton.setOnClickListener(this)
@@ -38,7 +37,7 @@ class RegisterActivity : AppCompatActivity(), View.OnClickListener {
                 startActivityForResult(pickPhoto, 0)
             }
             registerButton -> {
-                val user = User(null, displayNameEditText.text.toString())
+                val user = User(null, email, displayNameEditText.text.toString())
                 postUser(user)
                 saveProfileImage(profileImageView)
                 goToMainActivity()
@@ -52,7 +51,6 @@ class RegisterActivity : AppCompatActivity(), View.OnClickListener {
             0 -> {
                 if (resultCode == RESULT_OK) {
                     val selectedImage = data?.data as Uri
-                    imageURI = selectedImage
                     profileImageView.setImageURI(selectedImage)
                 }
             }

@@ -3,10 +3,6 @@ package com.valentino.line.dao
 import android.os.Bundle
 import com.facebook.*
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
 import com.valentino.line.listener.UserListener
 import com.valentino.line.model.User
 import org.json.JSONException
@@ -24,6 +20,7 @@ import android.util.Log
 import android.widget.ImageView
 import android.widget.TextView
 import com.bumptech.glide.Glide
+import com.google.firebase.database.*
 import com.google.firebase.storage.FirebaseStorage
 import java.io.ByteArrayOutputStream
 
@@ -35,46 +32,7 @@ import java.io.ByteArrayOutputStream
 object UserDAO {
     private val mDatabase = FirebaseDatabase.getInstance().reference
     private val mStorage = FirebaseStorage.getInstance().reference
-    private val uid = FirebaseAuth.getInstance().currentUser?.uid
-
-    fun getUser(completion: (User?)->Unit) {
-        mDatabase.child("users").child(uid).addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onDataChange(p0: DataSnapshot?) {
-                var user = p0?.getValue(User::class.java)
-                completion(user)
-            }
-            override fun onCancelled(p0: DatabaseError?) {}
-        })
-    }
-
-    fun postUser(user: User) {
-        mDatabase.child("users").child(uid).setValue(user)
-    }
-
-    fun saveProfileImage(imageView: ImageView) {
-        val bitmap = (imageView.getDrawable() as BitmapDrawable).getBitmap()
-        val stream = ByteArrayOutputStream()
-        bitmap.compress(Bitmap.CompressFormat.PNG, 90, stream)
-        val image = stream.toByteArray()
-        val imageName = uid + ".png"
-        mStorage.child("profileImages").child(imageName).putBytes(image)
-    }
-
-    fun getProfileImage(context: Context, userID: String, imageView: ImageView) {
-        val imageName = userID + ".png"
-        mStorage.child("profileImages").child(imageName).downloadUrl.addOnSuccessListener {
-            Glide.with(context).load(it).into(imageView)
-        }
-
-    }
-
-    fun saveProfileImage(imageURL: String) {
-
-    }
-
-    fun saveProfileImage(imageURI: Uri) {
-
-    }
+    private val currentUser = FirebaseAuth.getInstance().currentUser
 
     fun getUserDataFromFacebook(completion: (String, String, String, String) -> Unit) {
         val request = GraphRequest.newMeRequest(
@@ -97,89 +55,72 @@ object UserDAO {
         request.executeAsync()
     }
 
-    fun setUserData(accessToken: AccessToken) {
-        val request = GraphRequest.newMeRequest(
-                accessToken
-        ) { `object`, response ->
-            try {
-                val firstName = `object`.getString("first_name")
-                val lastName = `object`.getString("last_name")
-                val email = `object`.getString("email")
-                val picture = `object`.getJSONObject("picture").getJSONObject("data").getString("url")
-                val facebookID = `object`.getString("id")
-                val userUpdate = HashMap<String, Any>()
-                userUpdate.put("firstName", firstName)
-                userUpdate.put("lastName", lastName)
-                userUpdate.put("email", email)
-                mDatabase.child("users").child(uid).updateChildren(userUpdate)
-            } catch (e: JSONException) {
-                e.printStackTrace()
+    fun getUser(uid: String, completion: (User?)->Unit) {
+        mDatabase.child("users").child(uid).addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(p0: DataSnapshot?) {
+                var user = p0?.getValue(User::class.java)
+                user?.uid = p0?.key
+                completion(user)
             }
+            override fun onCancelled(p0: DatabaseError?) {}
+        })
+    }
+
+    fun getUserFromEmail(email: String, completion: (User?)->Unit, finish: ()-> Unit) {
+        mDatabase.child("users").orderByChild("email").addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(p0: DataSnapshot?) {
+                finish()
+            }
+            override fun onCancelled(p0: DatabaseError?) {}
+        })
+        mDatabase.child("users").orderByChild("email").equalTo(email).addChildEventListener(object : ChildEventListener {
+            override fun onChildAdded(p0: DataSnapshot?, p1: String?) {
+                var user = p0?.getValue(User::class.java)
+                user?.uid = p0?.key
+                completion(user)
+            }
+            override fun onCancelled(p0: DatabaseError?) {}
+            override fun onChildMoved(p0: DataSnapshot?, p1: String?) {}
+            override fun onChildChanged(p0: DataSnapshot?, p1: String?) {}
+            override fun onChildRemoved(p0: DataSnapshot?) {}
+        })
+    }
+
+    fun postUser(user: User) {
+        mDatabase.child("users").child(currentUser?.uid).setValue(user)
+    }
+
+    fun saveProfileImage(imageView: ImageView) {
+        val bitmap = (imageView.getDrawable() as BitmapDrawable).getBitmap()
+        val stream = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.PNG, 90, stream)
+        val image = stream.toByteArray()
+        val imageName = currentUser?.uid + ".png"
+        mStorage.child("profileImages").child(imageName).putBytes(image)
+    }
+
+    fun loadProfileImage(context: Context, uid: String, imageView: ImageView) {
+        val imageName = uid + ".png"
+        mStorage.child("profileImages").child(imageName).downloadUrl.addOnSuccessListener {
+            Glide.with(context).load(it).into(imageView)
         }
-        val parameters = Bundle()
-        parameters.putString("fields", "id, first_name, last_name, email, picture.type(large).width(960).height(960)")
-        request.parameters = parameters
-        request.executeAsync()
+
     }
 
-    fun getFriends(listener:UserListener) {
-        val eventsQuery = mDatabase.child("android_users").child(Profile.getCurrentProfile().id).child("friends")
-        eventsQuery.addListenerForSingleValueEvent(object: ValueEventListener {
-            override fun onDataChange(dataSnapshot: DataSnapshot) {
-                val idList = HashSet<String>()
-                for (eventSnapshot in dataSnapshot.children)
-                {
-                    val userID = eventSnapshot.value!!.toString()
-                    idList.add(userID)
-                }
-                getFriendsFromIDList(idList, listener)
-            }
+    fun postFriend(user: User?) {
+        mDatabase.child("user-friends").child(currentUser?.uid).child(user?.uid).setValue(true)
+    }
 
-            override fun onCancelled(databaseError: DatabaseError) {
-
+    fun getFriends(completion: (User?) -> Unit) {
+        mDatabase.child("user-friends").child(currentUser?.uid).addChildEventListener(object : ChildEventListener {
+            override fun onChildAdded(p0: DataSnapshot?, p1: String?) {
+                getUser(p0?.key!!, completion)
             }
+            override fun onCancelled(p0: DatabaseError?) {}
+            override fun onChildMoved(p0: DataSnapshot?, p1: String?) {}
+            override fun onChildChanged(p0: DataSnapshot?, p1: String?) {}
+            override fun onChildRemoved(p0: DataSnapshot?) {}
         })
     }
-
-    fun getFriendsFromIDList(idList:Set<String>, listener:UserListener) {
-        val eventsQuery = mDatabase.child("android_users")
-        eventsQuery.addListenerForSingleValueEvent(object: ValueEventListener {
-            override fun onDataChange(dataSnapshot: DataSnapshot) {
-                val friendsList = ArrayList<User>()
-                for (eventSnapshot in dataSnapshot.children)
-                {
-                    if (idList.contains(eventSnapshot.key))
-                    {
-                        val friend = eventSnapshot.getValue<User>(User::class.java)
-                        friend!!.uid = eventSnapshot.key
-                        friendsList.add(friend!!)
-                    }
-                }
-                listener.onSuccess()
-            }
-
-            override fun onCancelled(databaseError: DatabaseError) {
-
-            }
-        })
-    }
-
-    fun getUserProfile(userID:String, listener: UserListener) {
-        val eventsQuery = mDatabase.child("android_users").child(userID)
-        eventsQuery.addListenerForSingleValueEvent(object: ValueEventListener {
-            override fun onDataChange(dataSnapshot: DataSnapshot) {
-                val userList = ArrayList<User>()
-                val user = dataSnapshot.getValue<User>(User::class.java)
-                user!!.uid = dataSnapshot.key
-                userList.add(user)
-                listener.onSuccess()
-            }
-
-            override fun onCancelled(databaseError: DatabaseError) {
-
-            }
-        })
-    }
-
 
 }

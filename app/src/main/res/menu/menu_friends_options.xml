@@ -3,11 +3,11 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item android:id="@+id/addFriend"
         android:title="Add Friend"
-        android:icon="@drawable/ic_friends_icon"
+        android:icon="@drawable/ic_add_friend_icon"
         app:showAsAction="ifRoom"/>
     <item android:id="@+id/search"
         android:title="Search"
-        android:icon="@drawable/ic_search_icon"
+        android:icon="@drawable/ic_search_icon_gray"
         app:showAsAction="ifRoom"/>
     <item android:id="@+id/settings"
         android:title="Search"
