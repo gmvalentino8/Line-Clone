@@ -27,7 +27,7 @@ class FriendsFragment : Fragment() {
         UserDAO.getFriends {
             if (it != null) {
                 friendsData.add(it)
-                //adapter.notifyDataSetChanged()
+                adapter.notifyDataSetChanged()
             }
         }
     }

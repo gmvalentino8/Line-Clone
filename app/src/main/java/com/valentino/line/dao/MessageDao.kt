@@ -14,13 +14,13 @@ import com.valentino.line.model.User
 object MessageDAO {
     private val mDatabase = FirebaseDatabase.getInstance().reference
     private val mStorage = FirebaseStorage.getInstance().reference
-    private val currentUser = FirebaseAuth.getInstance().currentUser
+    val currentUser = FirebaseAuth.getInstance().currentUser
 
-    fun postMessage(message: Message) {
-        val midRef = mDatabase.child("messages").child(currentUser?.uid).push()
+    fun postMessage(message: Message, cid: String) {
+        val midRef = mDatabase.child("messages").push()
         midRef.setValue(message)
-        mDatabase.child("user-messages").child(currentUser?.uid).child(midRef.key).setValue(1)
-
+        mDatabase.child("chat-messages").child(cid).child(midRef.key).setValue(1)
+        mDatabase.child("chats").child(cid).child("recent").setValue(midRef.key)
     }
 
     fun getMessage(mid: String, completion: (Message?)->Unit) {
@@ -35,7 +35,7 @@ object MessageDAO {
     }
 
     fun getMessagesFromChat(cid: String, completion: (Message?)->Unit) {
-        mDatabase.child("chat-messages").child(cid).addChildEventListener(object : ChildEventListener{
+        mDatabase.child("chat-messages").child(cid).orderByChild("time").addChildEventListener(object : ChildEventListener{
             override fun onCancelled(p0: DatabaseError?) {}
             override fun onChildMoved(p0: DataSnapshot?, p1: String?) {}
             override fun onChildChanged(p0: DataSnapshot?, p1: String?) {}

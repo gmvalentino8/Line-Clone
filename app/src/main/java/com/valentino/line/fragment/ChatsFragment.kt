@@ -28,16 +28,12 @@ class ChatsFragment : Fragment() {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
         activity?.title = "Friends"
-        ChatDAO.getChatsFromUser(ChatDAO.currentUser?.uid!!) {
-            if (it != null) {
-                ChatDAO.getChatMetadata(it) {
-                    if (it != null) {
-                        chatsMetadata.add(it)
-                        adapter.notifyDataSetChanged()
-                    }
-                }
-            }
-        }
+
+    }
+
+    override fun onResume() {
+        super.onResume()
+        loadChats()
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -64,6 +60,19 @@ class ChatsFragment : Fragment() {
     override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
         inflater?.inflate(R.menu.menu_chats_options, menu)
         super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    fun loadChats() {
+        ChatDAO.getChatsFromUser(ChatDAO.currentUser?.uid!!) {
+            if (it != null) {
+                ChatDAO.getChatMetadata(it) {
+                    if (it != null) {
+                        chatsMetadata.add(it)
+                        adapter.notifyDataSetChanged()
+                    }
+                }
+            }
+        }
     }
 
 }

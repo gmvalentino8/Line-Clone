@@ -11,7 +11,7 @@ import com.valentino.line.dao.UserDAO
 import com.valentino.line.model.Chat
 import com.valentino.line.model.ChatMetadata
 
-import kotlinx.android.synthetic.main.item_chat.view.*
+import kotlinx.android.synthetic.main.item_list_chat.view.*
 import java.text.DateFormat
 import java.util.*
 
@@ -26,7 +26,7 @@ class ChatsListAdapter(private val chatsDataSet: List<ChatMetadata>) : RecyclerV
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        val root = LayoutInflater.from(parent.context).inflate(R.layout.item_chat, parent, false)
+        val root = LayoutInflater.from(parent.context).inflate(R.layout.item_list_chat, parent, false)
         return ChatsListViewHolder(root)
     }
 
