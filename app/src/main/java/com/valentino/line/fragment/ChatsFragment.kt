@@ -27,7 +27,7 @@ class ChatsFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
-        activity?.title = "Friends"
+        activity?.title = "Chats"
 
     }
 
@@ -63,13 +63,12 @@ class ChatsFragment : Fragment() {
     }
 
     fun loadChats() {
+        chatsMetadata.clear()
         ChatDAO.getChatsFromUser(ChatDAO.currentUser?.uid!!) {
-            if (it != null) {
+            if (it != null && it.recent != "") {
                 ChatDAO.getChatMetadata(it) {
-                    if (it != null) {
-                        chatsMetadata.add(it)
-                        adapter.notifyDataSetChanged()
-                    }
+                    chatsMetadata.add(it)
+                    adapter.notifyDataSetChanged()
                 }
             }
         }

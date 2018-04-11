@@ -18,19 +18,20 @@ class AddFriendActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_friend)
-        searchEditText.setOnKeyListener(object : View.OnKeyListener {
-            override fun onKey(v: View, keyCode: Int, event: KeyEvent): Boolean {
-                if (event.getAction() == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_ENTER) {
-                    Log.d("Add Friend", "Done")
-                    user = null
-                    UserDAO.getUserFromEmail(searchEditText.text.toString(),
-                            { displaySearchResult(it) },
-                            { userNotFound() }
-                    )
-                    return true
+        searchEditText.setOnKeyListener(View.OnKeyListener { v, keyCode, event ->
+            if (event.getAction() == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_ENTER) {
+                user = null
+                if (searchEditText.text.toString() == UserDAO.currentUser?.email!!) {
+                    userNotFound()
+                    return@OnKeyListener false
                 }
-                return false
+                UserDAO.getUserFromEmail(searchEditText.text.toString(),
+                        { displaySearchResult(it) },
+                        { userNotFound() }
+                )
+                return@OnKeyListener true
             }
+            false
         })
         addButton.setOnClickListener(object : View.OnClickListener {
             override fun onClick(p0: View?) {
@@ -40,14 +41,14 @@ class AddFriendActivity : AppCompatActivity() {
         })
     }
 
-    fun userNotFound() {
+    private fun userNotFound() {
         if (user == null) {
             foundLayout.visibility = View.GONE
             notFoundTextView.visibility = View.VISIBLE
         }
     }
 
-    fun displaySearchResult(user: User?) {
+    private fun displaySearchResult(user: User?) {
         this.user = user
         notFoundTextView.visibility = View.GONE
         UserDAO.loadProfileImage(this, user?.uid!!, profileImageView)

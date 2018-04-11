@@ -22,6 +22,7 @@ import android.widget.TextView
 import com.bumptech.glide.Glide
 import com.google.firebase.database.*
 import com.google.firebase.storage.FirebaseStorage
+import com.valentino.line.model.Chat
 import java.io.ByteArrayOutputStream
 
 
@@ -32,7 +33,7 @@ import java.io.ByteArrayOutputStream
 object UserDAO {
     private val mDatabase = FirebaseDatabase.getInstance().reference
     private val mStorage = FirebaseStorage.getInstance().reference
-    private val currentUser = FirebaseAuth.getInstance().currentUser
+    val currentUser = FirebaseAuth.getInstance().currentUser
 
     fun getUserDataFromFacebook(completion: (String, String, String, String) -> Unit) {
         val request = GraphRequest.newMeRequest(
@@ -88,6 +89,7 @@ object UserDAO {
 
     fun postUser(user: User) {
         mDatabase.child("users").child(currentUser?.uid).setValue(user)
+        mDatabase.child("user-chats").child(currentUser?.uid).setValue(0)
     }
 
     fun saveProfileImage(imageView: ImageView) {
@@ -109,6 +111,7 @@ object UserDAO {
 
     fun postFriend(user: User?) {
         mDatabase.child("user-friends").child(currentUser?.uid).child(user?.uid).setValue(true)
+        ChatDAO.postChat(Chat(uidList = arrayListOf(currentUser?.uid!!, user?.uid!!))) {}
     }
 
     fun getFriends(completion: (User?) -> Unit) {

@@ -31,5 +31,8 @@ class MainActivity : AppCompatActivity() {
         tabHost.addTab(tabHost.newTabSpec("Timeline").setIndicator("", resources.getDrawable(R.drawable.ic_timeline_icon)), TimelineFragment::class.java, null)
         tabHost.addTab(tabHost.newTabSpec("Calls").setIndicator("", resources.getDrawable(R.drawable.ic_calls_icon)), CallsFragment::class.java, null)
         tabHost.addTab(tabHost.newTabSpec("More").setIndicator("", resources.getDrawable(R.drawable.ic_more_icon)), MoreFragment::class.java, null)
+        if (intent.hasExtra("fragment")) {
+            tabHost.setCurrentTabByTag("Chats")
+        }
     }
 }

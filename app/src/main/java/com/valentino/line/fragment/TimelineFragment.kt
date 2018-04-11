@@ -11,7 +11,7 @@ class TimelineFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
-
+        activity?.title = "More"
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,

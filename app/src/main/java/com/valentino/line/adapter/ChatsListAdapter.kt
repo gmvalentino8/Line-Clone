@@ -13,6 +13,7 @@ import com.valentino.line.model.ChatMetadata
 
 import kotlinx.android.synthetic.main.item_list_chat.view.*
 import java.text.DateFormat
+import java.text.SimpleDateFormat
 import java.util.*
 
 /**
@@ -41,12 +42,46 @@ class ChatsListAdapter(private val chatsDataSet: List<ChatMetadata>) : RecyclerV
 
         fun bindData(chatMeta: ChatMetadata) {
             view.messageTextView.text = chatMeta.message?.content
-            val date = DateFormat.getDateInstance(DateFormat.SHORT).format(Date(chatMeta.message?.time!!))
-            view.dateTextView.text = date
+            val date = Date(chatMeta.message?.time!!)
+            view.dateTextView.text = when (getDateStatus(date)) {
+                1 -> {
+                    "Yesterday"
+                }
+                2 -> {
+                    val dateFormat = SimpleDateFormat("M/dd/yyyy")
+                    dateFormat.format(date)
+                }
+                3 -> {
+                    val dateFormat = SimpleDateFormat("M/d")
+                    dateFormat.format(date)
+                }
+                else -> {
+                    val dateFormat = SimpleDateFormat("h:mm a")
+                    dateFormat.format(date)
+                }
+            }
             view.nameTextView.text = chatMeta.partner?.name
             UserDAO.loadProfileImage(view.context, chatMeta.partner?.uid!!, view.profileImageView)
         }
+
+        private fun getDateStatus(date: Date) : Int {
+            val dateFormat = SimpleDateFormat("ddMMyyyy")
+            val dateFormatYear = SimpleDateFormat("yyyy")
+            val now = Date()
+            val cal = Calendar.getInstance()
+            cal.add(Calendar.DATE, -1)
+            val yesterday = cal.time
+            return when {
+                dateFormat.format(now) == dateFormat.format(date) -> 0
+                dateFormat.format(yesterday) == dateFormat.format(date) -> 1
+                dateFormatYear.format(now) == dateFormatYear.format(date) -> 2
+                else -> 3
+            }
+
+        }
+
     }
+
 }
 
 

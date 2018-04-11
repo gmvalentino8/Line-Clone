@@ -11,8 +11,10 @@ import com.valentino.line.dao.UserDAO
 import com.valentino.line.model.Message
 import com.valentino.line.model.ChatMetadata
 
-import kotlinx.android.synthetic.main.item_chat.view.*
+import kotlinx.android.synthetic.main.item_message_right.view.*
 import java.text.DateFormat
+import java.text.SimpleDateFormat
+import java.time.LocalDateTime
 import java.util.*
 
 /**
@@ -25,8 +27,23 @@ class MessagesAdapter(private val messagesDataSet: List<Message>, private val pa
         return  messagesDataSet.size
     }
 
+    override fun getItemViewType(position: Int): Int {
+        val message = messagesDataSet[position]
+        if (message.from == FirebaseAuth.getInstance().currentUser?.uid) {
+            return 0
+        }
+        else {
+            return 1
+        }
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        val root = LayoutInflater.from(parent.context).inflate(R.layout.item_chat, parent, false)
+        var root = if (viewType == 0) {
+            LayoutInflater.from(parent.context).inflate(R.layout.item_message_right, parent, false)
+        }
+        else {
+            LayoutInflater.from(parent.context).inflate(R.layout.item_message_left, parent, false)
+        }
         return MessagesViewHolder(root)
     }
 
@@ -40,7 +57,11 @@ class MessagesAdapter(private val messagesDataSet: List<Message>, private val pa
         private var view: View = itemView
 
         fun bindData(message: Message) {
-            view.messageTextView.text = message.content
+            view.contentTextView.text = message.content
+            val date = Date(message.time)
+            val dateFormat = SimpleDateFormat("h:mm a")
+            view.timeTextView.text = dateFormat.format(date)
+            UserDAO.loadProfileImage(view.context, message.from, view.profileImageView)
         }
     }
 }

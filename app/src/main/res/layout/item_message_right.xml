@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="5dp"
+    android:orientation="horizontal"
+    android:gravity="right">
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/profileImageView"
+        android:layout_width="0dp"
+        android:layout_height="0dp" />
+
+    <TextView
+        android:id="@+id/timeTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="5dp"
+        android:textSize="10sp"
+        android:textStyle="bold"
+        android:layout_gravity="bottom"
+        android:text="11:59 PM"
+        android:textColor="@color/white"/>
+
+    <LinearLayout
+        android:id="@+id/contentLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bubble_right">
+
+        <TextView
+            android:id="@+id/contentTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Test"
+            android:padding="1dp"
+            android:textSize="16sp"
+            android:textColor="@color/black"/>
+
+    </LinearLayout>
+
+</LinearLayout>
+

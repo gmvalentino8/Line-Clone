@@ -11,6 +11,7 @@ class CallsFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
+        activity?.title = "Calls"
 
     }
 
