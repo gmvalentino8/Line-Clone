@@ -7,6 +7,7 @@ import android.view.KeyEvent
 import com.valentino.line.R
 import kotlinx.android.synthetic.main.activity_add_friend.*
 import android.view.View
+import com.google.firebase.auth.FirebaseAuth
 import com.valentino.line.dao.UserDAO
 import com.valentino.line.model.User
 
@@ -21,7 +22,7 @@ class AddFriendActivity : AppCompatActivity() {
         searchEditText.setOnKeyListener(View.OnKeyListener { v, keyCode, event ->
             if (event.getAction() == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_ENTER) {
                 user = null
-                if (searchEditText.text.toString() == UserDAO.currentUser?.email!!) {
+                if (searchEditText.text.toString() == FirebaseAuth.getInstance().currentUser?.uid!!) {
                     userNotFound()
                     return@OnKeyListener false
                 }

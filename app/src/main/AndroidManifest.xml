@@ -46,7 +46,8 @@
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".activity.MainActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:theme="@style/Tabs"/>
         <activity
             android:name=".activity.RegisterActivity"
             android:screenOrientation="portrait"

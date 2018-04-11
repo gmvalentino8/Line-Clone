@@ -33,7 +33,6 @@ import java.io.ByteArrayOutputStream
 object UserDAO {
     private val mDatabase = FirebaseDatabase.getInstance().reference
     private val mStorage = FirebaseStorage.getInstance().reference
-    val currentUser = FirebaseAuth.getInstance().currentUser
 
     fun getUserDataFromFacebook(completion: (String, String, String, String) -> Unit) {
         val request = GraphRequest.newMeRequest(
@@ -88,8 +87,8 @@ object UserDAO {
     }
 
     fun postUser(user: User) {
-        mDatabase.child("users").child(currentUser?.uid).setValue(user)
-        mDatabase.child("user-chats").child(currentUser?.uid).setValue(0)
+        mDatabase.child("users").child(FirebaseAuth.getInstance().currentUser?.uid).setValue(user)
+        mDatabase.child("user-chats").child(FirebaseAuth.getInstance().currentUser?.uid).setValue(0)
     }
 
     fun saveProfileImage(imageView: ImageView) {
@@ -97,7 +96,7 @@ object UserDAO {
         val stream = ByteArrayOutputStream()
         bitmap.compress(Bitmap.CompressFormat.PNG, 90, stream)
         val image = stream.toByteArray()
-        val imageName = currentUser?.uid + ".png"
+        val imageName = FirebaseAuth.getInstance().currentUser?.uid + ".png"
         mStorage.child("profileImages").child(imageName).putBytes(image)
     }
 
@@ -110,12 +109,12 @@ object UserDAO {
     }
 
     fun postFriend(user: User?) {
-        mDatabase.child("user-friends").child(currentUser?.uid).child(user?.uid).setValue(true)
-        ChatDAO.postChat(Chat(uidList = arrayListOf(currentUser?.uid!!, user?.uid!!))) {}
+        mDatabase.child("user-friends").child(FirebaseAuth.getInstance().currentUser?.uid).child(user?.uid).setValue(true)
+        ChatDAO.postChat(Chat(uidList = arrayListOf(FirebaseAuth.getInstance().currentUser?.uid!!, user?.uid!!)))
     }
 
     fun getFriends(completion: (User?) -> Unit) {
-        mDatabase.child("user-friends").child(currentUser?.uid).addChildEventListener(object : ChildEventListener {
+        mDatabase.child("user-friends").child(FirebaseAuth.getInstance().currentUser?.uid).addChildEventListener(object : ChildEventListener {
             override fun onChildAdded(p0: DataSnapshot?, p1: String?) {
                 getUser(p0?.key!!, completion)
             }
@@ -123,6 +122,21 @@ object UserDAO {
             override fun onChildMoved(p0: DataSnapshot?, p1: String?) {}
             override fun onChildChanged(p0: DataSnapshot?, p1: String?) {}
             override fun onChildRemoved(p0: DataSnapshot?) {}
+        })
+    }
+
+    fun getFriend(uid: String, completion: () -> Unit) {
+        mDatabase.child("user-friends").child(FirebaseAuth.getInstance().currentUser?.uid).addListenerForSingleValueEvent(object : ValueEventListener{
+            override fun onDataChange(p0: DataSnapshot?) {
+                val friendsSet = HashSet<String>()
+                for (child in p0?.children!!) {
+                    friendsSet.add(child.key)
+                }
+                if (!friendsSet.contains(uid)) {
+                    completion()
+                }
+            }
+            override fun onCancelled(p0: DatabaseError?) {}
         })
     }
 

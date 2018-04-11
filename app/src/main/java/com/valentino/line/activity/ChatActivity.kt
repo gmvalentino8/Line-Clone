@@ -8,10 +8,12 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.view.Menu
 import android.view.View
+import com.google.firebase.auth.FirebaseAuth
 import com.valentino.line.R
 import com.valentino.line.adapter.ChatsListAdapter
 import com.valentino.line.adapter.MessagesAdapter
 import com.valentino.line.dao.MessageDAO
+import com.valentino.line.dao.UserDAO
 import com.valentino.line.model.ChatMetadata
 import com.valentino.line.model.Message
 import kotlinx.android.synthetic.main.activity_chat.*
@@ -23,7 +25,7 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener {
     private lateinit var linearLayoutManager: LinearLayoutManager
     private lateinit var chatMetadata : ChatMetadata
     private lateinit var adapter: MessagesAdapter
-    var messages = arrayListOf<Message>()
+    private var messages = arrayListOf<Message>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,6 +35,7 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener {
         toolbarTitle.text = chatMetadata.partner?.name
         toolbarBack.setOnClickListener(this)
         sendButton.setOnClickListener(this)
+        addFriendButton.setOnClickListener(this)
 
         linearLayoutManager = LinearLayoutManager(this)
         messagesRecyclerView.layoutManager = linearLayoutManager
@@ -46,6 +49,22 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener {
                     messagesRecyclerView.smoothScrollToPosition(lastItem)
                 }
             }
+        }
+
+        UserDAO.getFriend(chatMetadata.partner?.uid!!) {
+            addFriendLayout.visibility = View.VISIBLE
+        }
+
+        MessageDAO.getMessagesFromChat(chatMetadata.chat?.cid!!) {
+            messages.add(it!!)
+            messages.sortWith(Comparator { p0, p1 ->
+                when {
+                    p0?.time!! > p1?.time!! -> 1
+                    else -> -1
+                }
+            })
+            adapter.notifyDataSetChanged()
+            messagesRecyclerView.smoothScrollToPosition(adapter.itemCount - 1)
         }
 
         inputEditText.addTextChangedListener(object : TextWatcher {
@@ -62,6 +81,7 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener {
                 }
             }
         })
+
         inputEditText.onFocusChangeListener = object : View.OnFocusChangeListener {
             override fun onFocusChange(p0: View?, p1: Boolean) {
                 if (p1) {
@@ -74,19 +94,6 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener {
                 }
             }
         }
-        MessageDAO.getMessagesFromChat(chatMetadata.chat?.cid!!) {
-            messages.add(it!!)
-            messages.sortWith(Comparator { p0, p1 ->
-                when {
-                    p0?.time!! > p1?.time!! -> 1
-                    else -> -1
-                }
-            }
-            )
-            adapter.notifyDataSetChanged()
-            messagesRecyclerView.smoothScrollToPosition(adapter.itemCount - 1)
-        }
-
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -99,7 +106,7 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener {
     override fun onClick(p0: View?) {
         when (p0) {
             sendButton -> {
-                val message = Message(null, MessageDAO.currentUser?.uid!!, inputEditText.text.toString(), Date().time)
+                val message = Message(null, FirebaseAuth.getInstance().currentUser?.uid!!, inputEditText.text.toString(), Date().time)
                 MessageDAO.postMessage(message, chatMetadata.chat?.cid!!)
                 inputEditText.setText("")
             }
@@ -108,6 +115,10 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener {
                 intent.putExtra("fragment", "chat")
                 intent.flags = (Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
                 startActivity(intent)
+            }
+            addFriendButton -> {
+                addFriendLayout.visibility = View.GONE
+                UserDAO.postFriend(chatMetadata.partner)
             }
         }
     }

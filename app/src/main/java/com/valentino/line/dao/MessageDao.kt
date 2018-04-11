@@ -14,7 +14,6 @@ import com.valentino.line.model.User
 object MessageDAO {
     private val mDatabase = FirebaseDatabase.getInstance().reference
     private val mStorage = FirebaseStorage.getInstance().reference
-    val currentUser = FirebaseAuth.getInstance().currentUser
 
     fun postMessage(message: Message, cid: String) {
         val midRef = mDatabase.child("messages").push()

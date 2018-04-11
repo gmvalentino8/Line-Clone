@@ -1,5 +1,6 @@
 package com.valentino.line.activity
 
+import android.app.ProgressDialog
 import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
@@ -26,18 +27,16 @@ class StartActivity : AppCompatActivity(), View.OnClickListener, ViewPager.OnPag
     private val imageResources = intArrayOf(R.drawable.start_1, R.drawable.start_2,
     R.drawable.start_3, R.drawable.start_4, R.drawable.start_5)
     private var dotsCount = 0
-    lateinit private var dots : Array<ImageView>
+    private lateinit var dots : Array<ImageView>
     private var loginManager : LoginManager = LoginManager.getInstance()
     private var firebaseAuth : FirebaseAuth = FirebaseAuth.getInstance()
     private var callbackManager : CallbackManager = CallbackManager.Factory.create()
+    var mProgressDialog: ProgressDialog? = null
 
     override fun onStart() {
         super.onStart()
         if (AccessToken.getCurrentAccessToken() != null && firebaseAuth.getCurrentUser() != null) {
-            FirebaseAuth.getInstance().signOut()
-            LoginManager.getInstance().logOut()
-            AccessToken.setCurrentAccessToken(null)
-            //goToMainActivity()
+            goToMainActivity()
         }
     }
 
@@ -64,6 +63,11 @@ class StartActivity : AppCompatActivity(), View.OnClickListener, ViewPager.OnPag
                 Log.d(TAG, "Error" + e.localizedMessage)
             }
         })
+    }
+
+    override fun onPause() {
+        hideProgressDialog()
+        super.onPause()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
@@ -102,6 +106,7 @@ class StartActivity : AppCompatActivity(), View.OnClickListener, ViewPager.OnPag
         when (p0) {
             loginWithFacebookWrapper -> {
                 loginManager.logInWithReadPermissions(this, Arrays.asList("public_profile", "email"))
+                showProgressDialog()
             }
         }
     }
@@ -137,5 +142,21 @@ class StartActivity : AppCompatActivity(), View.OnClickListener, ViewPager.OnPag
                         Log.w("Login", "signInWithCredential:failure", task.exception)
                     }
                 }
+    }
+
+    private fun showProgressDialog() {
+        if (mProgressDialog == null) {
+            mProgressDialog = ProgressDialog(this)
+            mProgressDialog!!.setMessage("Loading")
+            mProgressDialog!!.isIndeterminate = true
+        }
+
+        mProgressDialog!!.show()
+    }
+
+    private fun hideProgressDialog() {
+        if (mProgressDialog != null && mProgressDialog!!.isShowing()) {
+            mProgressDialog!!.dismiss()
+        }
     }
 }

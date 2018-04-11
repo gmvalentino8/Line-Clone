@@ -1,5 +1,6 @@
 package com.valentino.line.activity
 
+import android.app.ProgressDialog
 import android.content.Intent
 import android.net.Uri
 import android.support.v7.app.AppCompatActivity
@@ -15,6 +16,7 @@ import kotlinx.android.synthetic.main.activity_register.*
 
 class RegisterActivity : AppCompatActivity(), View.OnClickListener {
 
+    var mProgressDialog: ProgressDialog? = null
     var email: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -30,6 +32,11 @@ class RegisterActivity : AppCompatActivity(), View.OnClickListener {
         registerButton.setOnClickListener(this)
     }
 
+    override fun onPause() {
+        hideProgressDialog()
+        super.onPause()
+    }
+
     override fun onClick(p0: View?) {
         when (p0) {
             profileImageView -> {
@@ -37,6 +44,7 @@ class RegisterActivity : AppCompatActivity(), View.OnClickListener {
                 startActivityForResult(pickPhoto, 0)
             }
             registerButton -> {
+                showProgressDialog()
                 val user = User(null, email, displayNameEditText.text.toString())
                 postUser(user)
                 saveProfileImage(profileImageView)
@@ -61,6 +69,22 @@ class RegisterActivity : AppCompatActivity(), View.OnClickListener {
         val intent = Intent(this, MainActivity::class.java)
         intent.flags = (Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
         startActivity(intent)
+    }
+
+    private fun showProgressDialog() {
+        if (mProgressDialog == null) {
+            mProgressDialog = ProgressDialog(this)
+            mProgressDialog!!.setMessage("Loading")
+            mProgressDialog!!.isIndeterminate = true
+        }
+
+        mProgressDialog!!.show()
+    }
+
+    private fun hideProgressDialog() {
+        if (mProgressDialog != null && mProgressDialog!!.isShowing()) {
+            mProgressDialog!!.dismiss()
+        }
     }
 
 }

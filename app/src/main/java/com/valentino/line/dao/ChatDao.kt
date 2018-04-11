@@ -13,7 +13,6 @@ import com.valentino.line.model.ChatMetadata
 
 object ChatDAO {
     private val mDatabase = FirebaseDatabase.getInstance().reference
-    val currentUser = FirebaseAuth.getInstance().currentUser
 
     fun postChat(chat: Chat) {
         val cidRef = mDatabase.child("chats").push()
@@ -49,7 +48,7 @@ object ChatDAO {
 
     fun getChatWithUser(uid: String, completion: (Chat?) -> Unit) {
         var total: Long
-        mDatabase.child("user-chats").child(currentUser?.uid).addListenerForSingleValueEvent(object : ValueEventListener {
+        mDatabase.child("user-chats").child(FirebaseAuth.getInstance().currentUser?.uid).addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(p0: DataSnapshot?) {
                 Log.d("Get Chats", "My Chats: " + p0?.value)
                 total = p0?.childrenCount!!
@@ -62,13 +61,13 @@ object ChatDAO {
                         Log.d("Get Chats", "Partner Chats: " + p0?.value)
                         val partnerTotal = p0?.childrenCount!!
                         if (total == 0L || partnerTotal == 0L) {
-                            postChat(Chat(uidList = arrayListOf(currentUser?.uid!!, uid)))
+                            postChat(Chat(uidList = arrayListOf(FirebaseAuth.getInstance().currentUser?.uid!!, uid)))
                         }
 
                         for (item in p0.children) {
                             if (item.key in myChatsKeyArray) {
                                 getChat(item.key) {chat ->
-                                    if (uid in chat?.uidList!! && currentUser?.uid in chat.uidList ) {
+                                    if (uid in chat?.uidList!! && FirebaseAuth.getInstance().currentUser?.uid in chat.uidList ) {
                                         completion(chat)
                                     }
                                 }

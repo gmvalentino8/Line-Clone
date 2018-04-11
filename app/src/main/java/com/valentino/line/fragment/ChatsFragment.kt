@@ -64,10 +64,18 @@ class ChatsFragment : Fragment() {
 
     fun loadChats() {
         chatsMetadata.clear()
-        ChatDAO.getChatsFromUser(ChatDAO.currentUser?.uid!!) {
+        ChatDAO.getChatsFromUser(FirebaseAuth.getInstance().currentUser?.uid!!) {
             if (it != null && it.recent != "") {
                 ChatDAO.getChatMetadata(it) {
-                    chatsMetadata.add(it)
+                    if (it.message != null) {
+                        chatsMetadata.add(it)
+                    }
+                    chatsMetadata.sortWith(Comparator { p0, p1 ->
+                        when {
+                            p0?.message?.time!! > p1?.message?.time!! -> 1
+                            else -> -1
+                        }
+                    })
                     adapter.notifyDataSetChanged()
                 }
             }
