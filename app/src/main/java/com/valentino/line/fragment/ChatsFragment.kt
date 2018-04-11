@@ -72,7 +72,7 @@ class ChatsFragment : Fragment() {
                     }
                     chatsMetadata.sortWith(Comparator { p0, p1 ->
                         when {
-                            p0?.message?.time!! > p1?.message?.time!! -> 1
+                            p0?.message?.time!! < p1?.message?.time!! -> 1
                             else -> -1
                         }
                     })
