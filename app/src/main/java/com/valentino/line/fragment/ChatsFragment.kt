@@ -27,13 +27,13 @@ class ChatsFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
-        activity?.title = "Chats"
 
     }
 
     override fun onResume() {
         super.onResume()
         loadChats()
+        activity?.title = "Chats"
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -64,8 +64,8 @@ class ChatsFragment : Fragment() {
 
     fun loadChats() {
         chatsMetadata.clear()
-        ChatDAO.getChatsFromUser(FirebaseAuth.getInstance().currentUser?.uid!!) {
-            if (it != null && it.recent != "") {
+        ChatDAO.getUserChats({
+            if (it != null) {
                 ChatDAO.getChatMetadata(it) {
                     if (it.message != null) {
                         chatsMetadata.add(it)
@@ -79,7 +79,21 @@ class ChatsFragment : Fragment() {
                     adapter.notifyDataSetChanged()
                 }
             }
-        }
+        }, {
+            if (it != null) {
+                ChatDAO.getChatMetadata(it) {
+                    if (it.message != null) {
+                        for (item in chatsMetadata) {
+                            if (item.chat?.cid == it.chat?.cid) {
+                                chatsMetadata.remove(item)
+                            }
+                        }
+                        chatsMetadata.add(0, it)
+                    }
+                    adapter.notifyDataSetChanged()
+                }
+            }
+        })
     }
 
 }

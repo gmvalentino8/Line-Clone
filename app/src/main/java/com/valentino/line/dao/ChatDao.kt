@@ -34,6 +34,36 @@ object ChatDAO {
         })
     }
 
+    fun getUserChats(completion: (Chat?) -> Unit, updated: (Chat?) -> Unit) {
+        mDatabase.child("user-chats").child(FirebaseAuth.getInstance().currentUser?.uid).addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(p0: DataSnapshot?) {
+                val myChatsKeyArray = HashSet<String>()
+                for (child in p0?.children!!) {
+                    myChatsKeyArray.add(child.key)
+                }
+                mDatabase.child("chats").addChildEventListener(object : ChildEventListener {
+                    override fun onCancelled(p0: DatabaseError?) {}
+                    override fun onChildMoved(p0: DataSnapshot?, p1: String?) {}
+                    override fun onChildChanged(p0: DataSnapshot?, p1: String?) {
+                        var chat = p0?.getValue(Chat::class.java)
+                        chat?.cid = p0?.key
+                        completion(chat)
+                    }
+                    override fun onChildRemoved(p0: DataSnapshot?) {}
+                    override fun onChildAdded(p0: DataSnapshot?, p1: String?) {
+                        if (p0?.key in myChatsKeyArray) {
+                            val chat = p0?.getValue(Chat::class.java)
+                            chat?.cid = p0?.key
+                            completion(chat)
+                        }
+                    }
+
+                })
+            }
+            override fun onCancelled(p0: DatabaseError?) {}
+        })
+    }
+
     fun getChatsFromUser(uid: String, completion: (Chat?)->Unit) {
         mDatabase.child("user-chats").child(uid).addChildEventListener(object : ChildEventListener{
             override fun onCancelled(p0: DatabaseError?) {}

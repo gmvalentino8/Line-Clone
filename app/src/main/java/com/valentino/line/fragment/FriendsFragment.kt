@@ -31,13 +31,17 @@ class FriendsFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
-        activity?.title = "Friends"
         UserDAO.getFriends {
             if (it != null) {
                 friendsData.add(it)
                 adapter.notifyDataSetChanged()
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        activity?.title = "Friends"
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
