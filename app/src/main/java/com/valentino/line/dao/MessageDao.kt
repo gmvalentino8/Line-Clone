@@ -23,7 +23,7 @@ object MessageDAO {
         ChatDAO.getChat(cid) {chat ->
             for (item in chat?.userMap!!) {
                 if (item.key != FirebaseAuth.getInstance().currentUser?.uid) {
-                    mDatabase.child("chats").child(chat.cid).child("userMap").child(FirebaseAuth.getInstance().currentUser?.uid).setValue(item.value + 1)
+                    mDatabase.child("chats").child(chat.cid).child("userMap").child(item.key).setValue(item.value + 1)
                 }
             }
         }
@@ -54,14 +54,7 @@ object MessageDAO {
     }
 
     fun postReadMessages(cid: String) {
-        val ref = mDatabase.child("chats").child(cid).child("userMap").child(FirebaseAuth.getInstance().currentUser?.uid)
-        ref.addValueEventListener(object : ValueEventListener{
-            override fun onDataChange(p0: DataSnapshot?) {
-                val increment = p0?.value as Long + 1
-                ref.setValue(increment)
-            }
-            override fun onCancelled(p0: DatabaseError?) {}
-        })
+        val ref = mDatabase.child("chats").child(cid).child("userMap").child(FirebaseAuth.getInstance().currentUser?.uid).setValue(0)
     }
 
 }

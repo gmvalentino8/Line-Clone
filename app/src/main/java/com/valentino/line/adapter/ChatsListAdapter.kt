@@ -48,11 +48,11 @@ class ChatsListAdapter(private val chatsDataSet: List<ChatMetadata>) : RecyclerV
                     "Yesterday"
                 }
                 2 -> {
-                    val dateFormat = SimpleDateFormat("M/dd/yyyy")
+                    val dateFormat = SimpleDateFormat("M/d")
                     dateFormat.format(date)
                 }
                 3 -> {
-                    val dateFormat = SimpleDateFormat("M/d")
+                    val dateFormat = SimpleDateFormat("M/dd/yyyy")
                     dateFormat.format(date)
                 }
                 else -> {
@@ -61,6 +61,11 @@ class ChatsListAdapter(private val chatsDataSet: List<ChatMetadata>) : RecyclerV
                 }
             }
             view.nameTextView.text = chatMeta.partner?.name
+            val unread = chatMeta.chat?.userMap?.get(FirebaseAuth.getInstance().currentUser?.uid)
+            if (unread != 0) {
+                view.notificationTextView.text = unread.toString()
+                view.notificationTextView.visibility = View.VISIBLE
+            }
             UserDAO.loadProfileImage(view.context, chatMeta.partner?.uid!!, view.profileImageView)
         }
 

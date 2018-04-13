@@ -58,7 +58,7 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener {
             messagesRecyclerView.smoothScrollToPosition(adapter.itemCount - 1)
         }
 
-        //MessageDAO.postReadMessages((chatMetadata.chat?.cid!!))
+        MessageDAO.postReadMessages((chatMetadata.chat?.cid!!))
 
         setupInputEditText()
     }
@@ -112,7 +112,7 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener {
         when (p0) {
             sendButton -> {
                 val message = Message(null, FirebaseAuth.getInstance().currentUser?.uid!!, inputEditText.text.toString(), Date().time)
-                MessageDAO.postMessage(message, chatMetadata.chat!!)
+                MessageDAO.postMessage(message, chatMetadata.chat?.cid!!)
                 inputEditText.setText("")
             }
             toolbarBack -> {
