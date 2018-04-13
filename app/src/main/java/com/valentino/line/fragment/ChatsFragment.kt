@@ -63,7 +63,7 @@ class ChatsFragment : Fragment() {
     }
 
     private fun loadChats() {
-        ChatDAO.getUserChats({
+        ChatDAO.getUserChats(context!!, {
             if (it != null) {
                 ChatDAO.getChatMetadata(it) {
                     if (it.message != null) {

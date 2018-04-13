@@ -6,6 +6,13 @@ import com.google.firebase.database.*
 import com.google.firebase.storage.FirebaseStorage
 import com.valentino.line.model.Chat
 import com.valentino.line.model.ChatMetadata
+import android.content.Context.NOTIFICATION_SERVICE
+import android.app.NotificationManager
+import android.R.attr.visibility
+import android.app.Notification
+import android.content.Context
+import com.valentino.line.R
+
 
 /**
  * Created by Valentino on 4/2/18.
@@ -34,7 +41,7 @@ object ChatDAO {
         })
     }
 
-    fun getUserChats(completion: (Chat?) -> Unit, updated: (Chat?) -> Unit) {
+    fun getUserChats(context: Context, completion: (Chat?) -> Unit, updated: (Chat?) -> Unit) {
         mDatabase.child("user-chats").child(FirebaseAuth.getInstance().currentUser?.uid).addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(p0: DataSnapshot?) {
                 val myChatsKeyArray = HashSet<String>()
@@ -47,6 +54,13 @@ object ChatDAO {
                     override fun onChildChanged(p0: DataSnapshot?, p1: String?) {
                         var chat = p0?.getValue(Chat::class.java)
                         chat?.cid = p0?.key
+                        if (chat?.recent!! != "" && chat?.userMap.get(FirebaseAuth.getInstance().currentUser?.uid) != 0) {
+                            MessageDAO.getMessage(chat?.recent!!) { message ->
+                                if (message?.from != FirebaseAuth.getInstance().currentUser?.uid) {
+                                    sendMessageNotification(context)
+                                }
+                            }
+                        }
                         updated(chat)
                     }
                     override fun onChildRemoved(p0: DataSnapshot?) {}
@@ -116,5 +130,19 @@ object ChatDAO {
                 }
             }
         }
+    }
+
+    fun sendMessageNotification(context: Context) {
+        val notification = Notification.Builder(context)
+                .setCategory(Notification.CATEGORY_MESSAGE)
+                .setContentTitle("Line")
+                .setContentText("You received a new message")
+                .setSmallIcon(R.drawable.line_icon)
+                .setDefaults(Notification.DEFAULT_ALL)
+                .setPriority(Notification.PRIORITY_MAX)
+                .setAutoCancel(true)
+                .setVisibility(Notification.VISIBILITY_PUBLIC).build()
+        val notificationManager = context.getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.notify(1, notification)
     }
 }

@@ -57,10 +57,14 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener {
             adapter.notifyDataSetChanged()
             messagesRecyclerView.smoothScrollToPosition(adapter.itemCount - 1)
         }
-
         MessageDAO.postReadMessages((chatMetadata.chat?.cid!!))
 
         setupInputEditText()
+    }
+
+    override fun onPause() {
+        MessageDAO.postReadMessages((chatMetadata.chat?.cid!!))
+        super.onPause()
     }
 
     private fun setupInputEditText() {

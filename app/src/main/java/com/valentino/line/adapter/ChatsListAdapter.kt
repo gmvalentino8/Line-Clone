@@ -65,6 +65,8 @@ class ChatsListAdapter(private val chatsDataSet: List<ChatMetadata>) : RecyclerV
             if (unread != 0) {
                 view.notificationTextView.text = unread.toString()
                 view.notificationTextView.visibility = View.VISIBLE
+            } else {
+                view.notificationTextView.visibility = View.INVISIBLE
             }
             UserDAO.loadProfileImage(view.context, chatMeta.partner?.uid!!, view.profileImageView)
         }
