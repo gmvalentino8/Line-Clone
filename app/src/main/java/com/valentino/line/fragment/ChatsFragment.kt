@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.widget.LinearLayoutManager
+import android.util.Log
 import android.view.*
 import com.google.firebase.auth.FirebaseAuth
 
@@ -27,12 +28,11 @@ class ChatsFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
-
+        loadChats()
     }
 
     override fun onResume() {
         super.onResume()
-        loadChats()
         activity?.title = "Chats"
     }
 
@@ -62,8 +62,7 @@ class ChatsFragment : Fragment() {
         super.onCreateOptionsMenu(menu, inflater)
     }
 
-    fun loadChats() {
-        chatsMetadata.clear()
+    private fun loadChats() {
         ChatDAO.getUserChats({
             if (it != null) {
                 ChatDAO.getChatMetadata(it) {
@@ -83,14 +82,16 @@ class ChatsFragment : Fragment() {
             if (it != null) {
                 ChatDAO.getChatMetadata(it) {
                     if (it.message != null) {
+                        Log.d("Notify", "My Chat: " + it.chat?.cid)
                         for (item in chatsMetadata) {
+                            Log.d("Notify", "Check Chat: " + item.chat?.cid)
                             if (item.chat?.cid == it.chat?.cid) {
                                 chatsMetadata.remove(item)
                             }
                         }
                         chatsMetadata.add(0, it)
+                        adapter.notifyDataSetChanged()
                     }
-                    adapter.notifyDataSetChanged()
                 }
             }
         })

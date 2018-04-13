@@ -110,7 +110,9 @@ object UserDAO {
 
     fun postFriend(user: User?) {
         mDatabase.child("user-friends").child(FirebaseAuth.getInstance().currentUser?.uid).child(user?.uid).setValue(true)
-        ChatDAO.postChat(Chat(uidList = arrayListOf(FirebaseAuth.getInstance().currentUser?.uid!!, user?.uid!!)))
+        ChatDAO.postChat(Chat(userMap = hashMapOf(
+                FirebaseAuth.getInstance().currentUser?.uid!! to 0,
+                user?.uid!! to 0)))
     }
 
     fun getFriends(completion: (User?) -> Unit) {

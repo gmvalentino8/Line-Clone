@@ -18,8 +18,8 @@ object ChatDAO {
         val cidRef = mDatabase.child("chats").push()
         val cid = cidRef.key
         cidRef.setValue(chat)
-        for (uid in chat.uidList) {
-            mDatabase.child("user-chats").child(uid).child(cid).setValue(1)
+        for (item in chat.userMap) {
+            mDatabase.child("user-chats").child(item.key).child(cid).setValue(1)
         }
     }
 
@@ -47,7 +47,7 @@ object ChatDAO {
                     override fun onChildChanged(p0: DataSnapshot?, p1: String?) {
                         var chat = p0?.getValue(Chat::class.java)
                         chat?.cid = p0?.key
-                        completion(chat)
+                        updated(chat)
                     }
                     override fun onChildRemoved(p0: DataSnapshot?) {}
                     override fun onChildAdded(p0: DataSnapshot?, p1: String?) {
@@ -61,18 +61,6 @@ object ChatDAO {
                 })
             }
             override fun onCancelled(p0: DatabaseError?) {}
-        })
-    }
-
-    fun getChatsFromUser(uid: String, completion: (Chat?)->Unit) {
-        mDatabase.child("user-chats").child(uid).addChildEventListener(object : ChildEventListener{
-            override fun onCancelled(p0: DatabaseError?) {}
-            override fun onChildMoved(p0: DataSnapshot?, p1: String?) {}
-            override fun onChildChanged(p0: DataSnapshot?, p1: String?) {}
-            override fun onChildRemoved(p0: DataSnapshot?) {}
-            override fun onChildAdded(p0: DataSnapshot?, p1: String?) {
-                getChat(p0?.key!!, completion)
-            }
         })
     }
 
@@ -91,13 +79,15 @@ object ChatDAO {
                         Log.d("Get Chats", "Partner Chats: " + p0?.value)
                         val partnerTotal = p0?.childrenCount!!
                         if (total == 0L || partnerTotal == 0L) {
-                            postChat(Chat(uidList = arrayListOf(FirebaseAuth.getInstance().currentUser?.uid!!, uid)))
+                            postChat(Chat(userMap = hashMapOf(
+                                    FirebaseAuth.getInstance().currentUser?.uid!! to 0,
+                                    uid to 0)))
                         }
 
                         for (item in p0.children) {
                             if (item.key in myChatsKeyArray) {
                                 getChat(item.key) {chat ->
-                                    if (uid in chat?.uidList!! && FirebaseAuth.getInstance().currentUser?.uid in chat.uidList ) {
+                                    if (uid in chat?.userMap?.keys!! && FirebaseAuth.getInstance().currentUser?.uid in chat.userMap.keys ) {
                                         completion(chat)
                                     }
                                 }
