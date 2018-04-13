@@ -107,7 +107,7 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener {
         when (p0) {
             sendButton -> {
                 val message = Message(null, FirebaseAuth.getInstance().currentUser?.uid!!, inputEditText.text.toString(), Date().time)
-                MessageDAO.postMessage(message, chatMetadata.chat?.cid!!)
+                MessageDAO.postMessage(message, chatMetadata.chat!!)
                 inputEditText.setText("")
             }
             toolbarBack -> {

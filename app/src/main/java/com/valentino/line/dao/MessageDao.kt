@@ -15,11 +15,16 @@ object MessageDAO {
     private val mDatabase = FirebaseDatabase.getInstance().reference
     private val mStorage = FirebaseStorage.getInstance().reference
 
-    fun postMessage(message: Message, cid: String) {
+    fun postMessage(message: Message, chat: Chat) {
         val midRef = mDatabase.child("messages").push()
         midRef.setValue(message)
-        mDatabase.child("chat-messages").child(cid).child(midRef.key).setValue(1)
-        mDatabase.child("chats").child(cid).child("recent").setValue(midRef.key)
+        mDatabase.child("chat-messages").child(chat.cid).child(midRef.key).setValue(1)
+        mDatabase.child("chats").child(chat.cid).child("recent").setValue(midRef.key)
+        for (item in chat.userMap) {
+            if (item.key != FirebaseAuth.getInstance().currentUser?.uid) {
+                mDatabase.child("chats").child(chat.cid).child("userMap").child(FirebaseAuth.getInstance().currentUser?.uid).setValue(item.value + 1)
+            }
+        }
     }
 
     fun getMessage(mid: String, completion: (Message?)->Unit) {

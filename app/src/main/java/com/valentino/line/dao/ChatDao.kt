@@ -101,6 +101,17 @@ object ChatDAO {
         })
     }
 
+    fun postReadMessages(cid: String) {
+        val ref = mDatabase.child("chats").child(cid).child("userMap").child(FirebaseAuth.getInstance().currentUser?.uid)
+        ref.addValueEventListener(object : ValueEventListener{
+            override fun onDataChange(p0: DataSnapshot?) {
+                val increment = p0?.value as Int + 1
+                ref.setValue(increment)
+            }
+            override fun onCancelled(p0: DatabaseError?) {}
+        })
+    }
+
     fun getChatMetadata(chat: Chat, completion: (ChatMetadata)->Unit) {
         val chatMeta = ChatMetadata(chat)
         val partnerId = chat.getChatPartner(FirebaseAuth.getInstance().currentUser?.uid!!)
