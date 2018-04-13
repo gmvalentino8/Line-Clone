@@ -15,14 +15,16 @@ object MessageDAO {
     private val mDatabase = FirebaseDatabase.getInstance().reference
     private val mStorage = FirebaseStorage.getInstance().reference
 
-    fun postMessage(message: Message, chat: Chat) {
+    fun postMessage(message: Message, cid: String) {
         val midRef = mDatabase.child("messages").push()
         midRef.setValue(message)
-        mDatabase.child("chat-messages").child(chat.cid).child(midRef.key).setValue(1)
-        mDatabase.child("chats").child(chat.cid).child("recent").setValue(midRef.key)
-        for (item in chat.userMap) {
-            if (item.key != FirebaseAuth.getInstance().currentUser?.uid) {
-                mDatabase.child("chats").child(chat.cid).child("userMap").child(FirebaseAuth.getInstance().currentUser?.uid).setValue(item.value + 1)
+        mDatabase.child("chat-messages").child(cid).child(midRef.key).setValue(1)
+        mDatabase.child("chats").child(cid).child("recent").setValue(midRef.key)
+        ChatDAO.getChat(cid) {chat ->
+            for (item in chat?.userMap!!) {
+                if (item.key != FirebaseAuth.getInstance().currentUser?.uid) {
+                    mDatabase.child("chats").child(chat.cid).child("userMap").child(FirebaseAuth.getInstance().currentUser?.uid).setValue(item.value + 1)
+                }
             }
         }
     }
@@ -48,6 +50,17 @@ object MessageDAO {
                 MessageDAO.getMessage(p0?.key!!, completion)
             }
 
+        })
+    }
+
+    fun postReadMessages(cid: String) {
+        val ref = mDatabase.child("chats").child(cid).child("userMap").child(FirebaseAuth.getInstance().currentUser?.uid)
+        ref.addValueEventListener(object : ValueEventListener{
+            override fun onDataChange(p0: DataSnapshot?) {
+                val increment = p0?.value as Long + 1
+                ref.setValue(increment)
+            }
+            override fun onCancelled(p0: DatabaseError?) {}
         })
     }
 

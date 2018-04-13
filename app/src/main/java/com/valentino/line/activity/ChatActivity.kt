@@ -42,15 +42,6 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener {
         adapter = MessagesAdapter(messages, "")
         messagesRecyclerView.adapter = adapter
 
-        messagesRecyclerView.addOnLayoutChangeListener { p0, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
-            if (bottom < oldBottom && adapter.itemCount > 0) {
-                val lastItem = adapter.itemCount - 1
-                messagesRecyclerView.post {
-                    messagesRecyclerView.smoothScrollToPosition(lastItem)
-                }
-            }
-        }
-
         UserDAO.getFriend(chatMetadata.partner?.uid!!) {
             addFriendLayout.visibility = View.VISIBLE
         }
@@ -65,6 +56,21 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener {
             })
             adapter.notifyDataSetChanged()
             messagesRecyclerView.smoothScrollToPosition(adapter.itemCount - 1)
+        }
+
+        //MessageDAO.postReadMessages((chatMetadata.chat?.cid!!))
+
+        setupInputEditText()
+    }
+
+    private fun setupInputEditText() {
+        messagesRecyclerView.addOnLayoutChangeListener { p0, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
+            if (bottom < oldBottom && adapter.itemCount > 0) {
+                val lastItem = adapter.itemCount - 1
+                messagesRecyclerView.post {
+                    messagesRecyclerView.smoothScrollToPosition(lastItem)
+                }
+            }
         }
 
         inputEditText.addTextChangedListener(object : TextWatcher {
@@ -87,8 +93,7 @@ class ChatActivity : AppCompatActivity(), View.OnClickListener {
                 if (p1) {
                     inputOptionsLayout.visibility = View.GONE
                     expandButton.visibility = View.VISIBLE
-                }
-                else {
+                } else {
                     inputOptionsLayout.visibility = View.VISIBLE
                     expandButton.visibility = View.GONE
                 }
